@@ -1,6 +1,6 @@
 # Guest Entries plugin for Craft
 
-This plugin allows you to save guest entries from the front-end of your website.
+This is a fork of Pixel & Tonic's Guest Entries plugin. This plugin allows you to save, edit, and delete guest entries from the front-end of your website.
 
 ## Requirements
 
@@ -40,6 +40,8 @@ Your guest entry template can look something like this:
     <input type="submit" value="Publish">
 </form>
 ```
+If you need to edit the entry, be sure to include the entry ID `<input type="hidden" name="entryId" value="123">`.
+If you need to delete an entry, include the entry ID, as above, change the action input's value to `guestEntries/deleteEntry`.
 
 You will need to adjust the hidden “sectionId” input to point to the section you would like to post guest entries to.
 
