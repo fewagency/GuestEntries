@@ -89,6 +89,59 @@ class GuestEntriesController extends BaseController
 		$this->_returnError($entry);
 	}
 
+	public function actionDeleteEntry()
+	{
+		$this->requirePostRequest();
+
+		// Only allow from the front-end.
+		if (!craft()->request->isSiteRequest())
+		{
+			throw new HttpException(404);
+		}
+
+		$settings = craft()->plugins->getPlugin('guestentries')->getSettings();
+
+		$entryId = craft()->request->getRequiredPost('entryId');
+		$localeId = craft()->request->getPost('locale');
+		$entry = craft()->entries->getEntryById($entryId, $localeId);
+
+		if (!$entry)
+		{
+			throw new Exception(Craft::t('No entry exists with the ID “{id}”.', array('id' => $entryId)));
+		}
+
+		$currentUser = craft()->userSession->getUser();
+
+		if (craft()->entries->deleteEntry($entry))
+		{
+			if (craft()->request->isAjaxRequest())
+			{
+				$this->returnJson(array('success' => true));
+			}
+			else
+			{
+				craft()->userSession->setNotice(Craft::t('Entry deleted.'));
+				$this->redirectToPostedUrl($entry);
+			}
+		}
+		else
+		{
+			if (craft()->request->isAjaxRequest())
+			{
+				$this->returnJson(array('success' => false));
+			}
+			else
+			{
+				craft()->userSession->setError(Craft::t('Couldn’t delete entry.'));
+
+				// Send the entry back to the template
+				craft()->urlManager->setRouteVariables(array(
+					'entry' => $entry
+				));
+			}
+		}
+	}
+
 	/**
 	 * Returns a 'success' response.
 	 *
@@ -164,7 +217,16 @@ class GuestEntriesController extends BaseController
 	 */
 	private function _populateEntryModel($settings)
 	{
+		$entryId = craft()->request->getPost('entryId');
+		$localeId = craft()->request->getPost('locale');
+
+		if ($entryId)
+		{
+			$entry = craft()->entries->getEntryById($entryId, $localeId);
+		}
+		else {
 		$entry = new EntryModel();
+		}
 
 		$entry->sectionId     = craft()->request->getRequiredPost('sectionId');
 
