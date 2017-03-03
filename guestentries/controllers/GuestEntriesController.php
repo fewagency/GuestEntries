@@ -156,10 +156,23 @@ class GuestEntriesController extends BaseController
 		if (craft()->request->isAjaxRequest())
 		{
 			$return['success']   = true;
+			$return['id']        = $entry->id;
 			$return['title']     = $entry->title;
-			$return['cpEditUrl'] = $entry->getCpEditUrl();
-			$return['author']    = $entry->getAuthor()->getAttributes();
-			$return['postDate']  = ($entry->postDate ? $entry->postDate->localeDate() : null);
+
+			if (craft()->request->isCpRequest())
+			{
+				$return['cpEditUrl'] = $entry->getCpEditUrl();
+			}
+
+			$return['authorUsername']   = $entry->getAuthor()->username;
+			$return['dateCreated']      = DateTimeHelper::toIso8601($entry->dateCreated);
+			$return['dateUpdated']      = DateTimeHelper::toIso8601($entry->dateUpdated);
+			$return['postDate']         = ($entry->postDate ? DateTimeHelper::toIso8601($entry->postDate) : null);
+
+			if ($entry->getUrl())
+			{
+				$return['url']          = $entry->getUrl();
+			}
 
 			$this->returnJson($return);
 		}
