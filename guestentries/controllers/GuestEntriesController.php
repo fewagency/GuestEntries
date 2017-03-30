@@ -286,7 +286,12 @@ class GuestEntriesController extends BaseController
 		$entry->slug          = craft()->request->getPost('slug');
 		$entry->postDate      = $postDate;
 		$entry->expiryDate    = $expiryDate;
-		$entry->enabled       = (bool)$settings->enabledByDefault[$this->_section->handle];
+
+		// Don't touch availability status if editing existing entry
+		if (!$entryId)
+		{
+			$entry->enabled	= (bool)$settings->enabledByDefault[$this->_section->handle];
+		}
 
 		if (($localeEnabled = craft()->request->getPost('localeEnabled', null)) === null)
 		{
